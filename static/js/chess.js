@@ -124,19 +124,19 @@ function eatChess(i, j, type) {
     if (j < 18) eatChess(i, j + 1, type);
 }
 
-function onStep(i, j, me) {
+function onStep(i, j, a_me) {
     if (chessBox[i][j] == 0) {
-        if (me) {
+        if (a_me) {
             chessBox[i][j] = 1;
         } else {
             chessBox[i][j] = 2;
         }
-        if (2147483647 === eatenChesscount(i, j, me ? 1 : 2)) {
+        if (2147483647 === eatenChesscount(i, j, a_me ? 1 : 2)) {
             alert('禁入点！！');
             chessBox[i][j] = 0;
         } else {
 
-            if (!force_me) me = !me;//非对战的话下一步白棋
+            if (!force_me) me = !a_me;//非对战的话下一步白棋
         }
     }
     drawChessBoard();
