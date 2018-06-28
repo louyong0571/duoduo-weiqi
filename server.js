@@ -15,10 +15,14 @@ var server = ws.createServer(function(conn){
 		}
 
 		if(game1Ready&&game2Ready){
-			game2.sendText(str);
+			if (conn === game1) {
+                game2.sendText(str);
+			} else if (conn === game2)  {
+                game1.sendText(str);
+			}
 		}
 
-		conn.sendText(str);
+		//conn.sendText(str);
 	});
 	conn.on("close", function (code, reason) {
 		console.log("关闭连接")
