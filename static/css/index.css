@@ -55,3 +55,15 @@ a:hover, a:visited, a:link, a:active {
     background: rebeccapurple;
 
 }
+
+.msg{
+    width:600px;
+    font-size:20px;
+    font-family:MicrosoftYaHeiLight;
+    color:rgba(255,255,255,1);
+    text-align: center;
+    line-height: 40px;
+    margin: 42px auto 40px auto;
+    background: #313335;
+
+}

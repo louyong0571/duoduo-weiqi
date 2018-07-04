@@ -5,6 +5,7 @@ var chessBox = [];//用于存放棋盘中落子的情况
 
 var B = [];
 var eatCount = 0;
+var need_wait = false
 
 for (var i = 0; i < 19; i++) {
     chessBox[i] = [];
@@ -143,10 +144,17 @@ function onStep(i, j, a_me) {
 }
 
 chess.onclick = function (e) {
+    if (need_wait)  {
+        alert('等待对方下子');
+        return;
+    }
     var x = e.offsetX;//相对于棋盘左上角的x坐标
     var y = e.offsetY;//相对于棋盘左上角的y坐标
     var i = Math.floor(x / 30);
     var j = Math.floor(y / 30);
     onStep(i, j, me);
-    ws.send('chess:' + i + ":" + j + ":" + me);
+    if (force_me) {
+        ws.send('chess:' + i + ":" + j + ":" + me);
+        need_wait = true;
+    }
 }
