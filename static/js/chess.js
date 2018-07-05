@@ -6,12 +6,21 @@ var chessBox = [];//用于存放棋盘中落子的情况
 var B = [];
 var eatCount = 0;
 var need_wait = false
+var eatBlackCount = 0;
+var eatWhiteCount = 0;
 
-for (var i = 0; i < 19; i++) {
-    chessBox[i] = [];
-    for (var j = 0; j < 19; j++) {
-        chessBox[i][j] = 0;//初始值为0
+
+function initShaFive() {
+    for (var i = 0; i < 19; i++) {
+        chessBox[i] = [];
+        for (var j = 0; j < 19; j++) {
+            chessBox[i][j] = 0;//初始值为0
+        }
     }
+    chessBox[9][9] = 1;
+    chessBox[9][10] = 2;
+    chessBox[10][9] = 2;
+    chessBox[10][10] = 1;
 }
 
 function drawChessBoard() {
@@ -35,7 +44,13 @@ function drawChessBoard() {
     }
 }
 
-drawChessBoard();//绘制棋盘
+function initGame() {
+    initShaFive();
+    drawChessBoard();
+    eatBlackCount = 0;
+    eatWhiteCount = 0;
+}
+
 
 function initFlagMatrix() {
     for (var i = 0; i < 19; i++) {
@@ -119,6 +134,12 @@ function eatenChesscount(i, j, type) {
 function eatChess(i, j, type) {
     if (chessBox[i][j] != type) return;
     chessBox[i][j] = 0;    //吃掉子
+    if (type === 1) {
+        eatBlackCount ++;
+    }
+    if (type === 2) {
+        eatWhiteCount ++;
+    }
     if (i > 0) eatChess(i - 1, j, type);
     if (i < 18) eatChess(i + 1, j, type);
     if (j > 0) eatChess(i, j - 1, type);
@@ -136,11 +157,12 @@ function onStep(i, j, a_me) {
             alert('禁入点！！');
             chessBox[i][j] = 0;
         } else {
-
             if (!force_me) me = !a_me;//非对战的话下一步白棋
         }
     }
     drawChessBoard();
+    console.log("黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount)
+    onEaten(eatBlackCount,eatWhiteCount);
 }
 
 chess.onclick = function (e) {
@@ -158,3 +180,6 @@ chess.onclick = function (e) {
         need_wait = true;
     }
 }
+
+
+initGame();

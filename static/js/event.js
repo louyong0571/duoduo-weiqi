@@ -1,6 +1,7 @@
 
 var button = $("#button");
 var msg = $("#msg");
+var info = $("#info");
 var force_me = false;
 var ws;
 
@@ -8,14 +9,6 @@ button.click(function(){
     var name_str = $("#name").val();
     if (name_str.length !== 0) {
         connectServer(name_str);
-        if (name_str==='game1') {
-            force_me = true;
-            me = true;
-        }
-        if (name_str==='game2') {
-            force_me = true;
-            me = false;
-        }
     } else {
         console.log('name is empty');
     }
@@ -32,31 +25,36 @@ function connectServer(name) {
         }
         ws.onclose = function(e){
             console.log("服务器关闭");
+            alert("服务器关闭");
         }
         ws.onerror = function(){
             console.log("连接出错");
+            alert("连接出错");
         }
 
         ws.onmessage = function(e){
 
             if (e.data.startWith('userList:')) {
                 var userlist = e.data.replace('userList:','').split(':');
-                var userlist_str='当前在线用户:';
+                var userlist_str='当前在线用户(点击可以开始对战):';
                 userlist.forEach(function (value) {
                     if ($("#name").val() === value) {
                         return;
                     }
-                    userlist_str += '<div onclick="javascript:doConnect(' + value+ ')">' + value + '</div>';
+                    userlist_str += '<span class=\"user\" onclick="javascript:doConnect(' + '\'' + value+ '\'' + ')">' + value + '</span>';
                 });
                 msg.html(userlist_str);
                 button.text('success');
             }
-            if (e.data.startWith('black:')) {
-                me = (e.data.split(':')[1] === 'true');
+            if (e.data.startWith('bind:')) {
+                var bindName = e.data.split(':')[1];
+                me = (e.data.split(':')[3] === 'true');
                 force_me = true;
-                var text = '对战开始，你是' + (me ? '黑色' : '白色');
+                var text = bindName + '是' + (me ? '白色' : '黑色') + '，你是' + (me ? '黑色' : '白色');
                 button.text(text);
                 need_wait = me ? false : true;
+                alert(bindName + "开始和你对战！！！");
+                initGame();
             }
             if (e.data.startWith('chess')) {
                 var param=e.data.split(':')
@@ -64,12 +62,37 @@ function connectServer(name) {
                 console.log(e.data);
                 need_wait = false;
             }
+            if (e.data.startWith('fail')) {
+                var code = e.data.split(':')[1];
+                if (code === '1') {
+                    button.text("重名了，请重起昵称！");
+                }
+            }
+            if (e.data.startWith('close')) {
+                var name = e.data.split(':')[1];
+                confirm(name + "已掉线");
+                location.reload(false);
+            }
         }
     }
 }
 
 function doConnect(name) {
     ws.send('connect:' + name);
+}
+
+function onEaten(b, w) {
+    info.text("黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount);
+    if (eatBlackCount >=5) {
+        alert("对战结束，白方胜利！" + "黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount);
+        initGame();
+        info.text("");
+    }
+    if (eatWhiteCount >=5) {
+        alert("对战结束，黑方胜利！" + "黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount);
+        initGame();
+        info.text("");
+    }
 }
 
 String.prototype.endWith=function(s){
