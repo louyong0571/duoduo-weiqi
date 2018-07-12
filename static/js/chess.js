@@ -23,7 +23,7 @@ function initShaFive() {
     chessBox[10][10] = 1;
 }
 
-function drawChessBoard() {
+function drawChessBoard(x, y) {
     context.clearRect(0, 0, 570, 570);
     for (var i = 0; i < 19; i++) {
         context.strokeStyle = "#D6D1D1";
@@ -41,6 +41,10 @@ function drawChessBoard() {
                 oneStep(i, j, chessBox[i][j]);
             }
         }
+    }
+
+    if (x !== undefined && y !== undefined) {
+        drawFocus(x,y);
     }
 }
 
@@ -106,6 +110,14 @@ function oneStep(i, j, k) {
     context.closePath();
 }
 
+function drawFocus(x, y) {
+    context.beginPath();
+    context.arc(15 + x * 30, 15 + y * 30, 15, 0, 2 * Math.PI);//绘制棋子
+    context.strokeStyle='red';
+    context.stroke();
+    context.closePath();
+}
+
 function eatenChesscount(i, j, type) {
     initFlagMatrix();
     var self_hasAir = hasAir(i, j, type);
@@ -156,13 +168,16 @@ function onStep(i, j, a_me) {
         if (2147483647 === eatenChesscount(i, j, a_me ? 1 : 2)) {
             alert('禁入点！！');
             chessBox[i][j] = 0;
+            return false;
         } else {
-            if (!force_me) me = !a_me;//非对战的话下一步白棋
+            if (!net_mode) me = !a_me;//非对战的话下一步白棋
+            drawChessBoard(i, j);
+            console.log("黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount)
+            onEaten(eatBlackCount,eatWhiteCount);
+            return true;
         }
+
     }
-    drawChessBoard();
-    console.log("黑子被吃：" + eatBlackCount + " 白子被吃：" + eatWhiteCount)
-    onEaten(eatBlackCount,eatWhiteCount);
 }
 
 chess.onclick = function (e) {
@@ -174,8 +189,8 @@ chess.onclick = function (e) {
     var y = e.offsetY;//相对于棋盘左上角的y坐标
     var i = Math.floor(x / 30);
     var j = Math.floor(y / 30);
-    onStep(i, j, me);
-    if (force_me) {
+    var success = onStep(i, j, me);
+    if (net_mode && success) {
         ws.send('chess:' + i + ":" + j + ":" + me);
         need_wait = true;
     }

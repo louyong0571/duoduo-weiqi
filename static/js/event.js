@@ -2,7 +2,7 @@
 var button = $("#button");
 var msg = $("#msg");
 var info = $("#info");
-var force_me = false;
+var net_mode = false;
 var ws;
 
 button.click(function(){
@@ -49,7 +49,7 @@ function connectServer(name) {
             if (e.data.startWith('bind:')) {
                 var bindName = e.data.split(':')[1];
                 me = (e.data.split(':')[3] === 'true');
-                force_me = true;
+                net_mode = true;
                 var text = bindName + '是' + (me ? '白色' : '黑色') + '，你是' + (me ? '黑色' : '白色');
                 button.text(text);
                 need_wait = me ? false : true;
