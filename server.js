@@ -20,21 +20,53 @@ var server = ws.createServer(function(conn){
             conn.sendText("userList:" + userList);
             return;
 		}
-        if (str.startWith('connect')) {
+        // if (str.startWith('connect')) {
+			// var toName = str.split(':')[1];
+			// var fromConnect = conn;
+			// var toConnect = userMap.get(toName);
+        //     var fromName = '';
+        //     userMap.forEach(function (aConnect, aName) {
+        //         if (fromConnect === aConnect) {
+        //             fromName = aName;
+			// 	}
+        //     });
+        //     if (userMap.has(toName)) {
+        //         connectMap.set(fromConnect, toConnect);
+        //     }
+        //     fromConnect.sendText("bind:"+ toName +":black:" + "true");
+        //     toConnect.sendText("bind:"+ fromName +":black:" + "false");
+        //     return;
+        // }
+        if (str.startWith('connect_request:')) {
 			var toName = str.split(':')[1];
-			var fromConnect = conn;
 			var toConnect = userMap.get(toName);
+            var fromConnect = conn;
             var fromName = '';
             userMap.forEach(function (aConnect, aName) {
                 if (fromConnect === aConnect) {
                     fromName = aName;
 				}
             });
+            toConnect.sendText("connect_request:"+ fromName + ":to:" + toName);
+            return;
+        }
+        if (str.startWith('connect_response_ok:')) {
+            var fromName = str.split(':')[1];
+            var toName = str.split(':')[3];
+            var fromConnect = userMap.get(fromName);
+            var toConnect = userMap.get(toName);
             if (userMap.has(toName)) {
                 connectMap.set(fromConnect, toConnect);
             }
             fromConnect.sendText("bind:"+ toName +":black:" + "true");
             toConnect.sendText("bind:"+ fromName +":black:" + "false");
+            return;
+        }
+        if (str.startWith('connect_response_not:')) {
+            var fromName = str.split(':')[1];
+            var toName = str.split(':')[3];
+            var fromConnect = userMap.get(fromName);
+            fromConnect.sendText("connect_response_not:"+ toName);
             return;
         }
         if (str.startWith('chess')) {
